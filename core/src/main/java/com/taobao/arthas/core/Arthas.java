@@ -64,7 +64,7 @@ public class Arthas {
         VirtualMachine virtualMachine = null;
         try {
             if (null == virtualMachineDescriptor) { // 使用 attach(String pid) 这种方式
-                virtualMachine = VirtualMachine.attach("" + configure.getJavaPid());
+                virtualMachine = VirtualMachine.attach(String.valueOf(configure.getJavaPid()));
             } else {
                 virtualMachine = VirtualMachine.attach(virtualMachineDescriptor);
             }
