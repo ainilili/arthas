@@ -3,6 +3,7 @@ package com.taobao.arthas.core;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import com.taobao.arthas.core.config.Configure;
+import com.taobao.arthas.core.server.ArthasBootstrap;
 import com.taobao.arthas.core.util.AnsiLog;
 import com.taobao.middleware.cli.CLI;
 import com.taobao.middleware.cli.CLIs;
@@ -10,6 +11,7 @@ import com.taobao.middleware.cli.CommandLine;
 import com.taobao.middleware.cli.Option;
 import com.taobao.middleware.cli.TypedOption;
 
+import java.lang.instrument.Instrumentation;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -18,8 +20,8 @@ import java.util.Properties;
  */
 public class Arthas {
 
-    private static final String DEFAULT_TELNET_PORT = "3658";
-    private static final String DEFAULT_HTTP_PORT = "8563";
+    private static final String DEFAULT_TELNET_PORT = "6666";
+    private static final String DEFAULT_HTTP_PORT = "7777";
 
     private Arthas(String[] args) throws Exception {
         attachAgent(parse(args));
@@ -84,6 +86,12 @@ public class Arthas {
 
             virtualMachine.loadAgent(configure.getArthasAgent(),
                             configure.getArthasCore() + ";" + configure.toString());
+            
+            try {
+				ArthasBootstrap.getInstance(configure.getJavaPid(), null).bind(configure);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
         } finally {
             if (null != virtualMachine) {
                 virtualMachine.detach();
@@ -94,6 +102,8 @@ public class Arthas {
 
     public static void main(String[] args) {
         try {
+        	args = new String[] {"-pid","16064","-target-ip","127.0.0.1","-core","D:\\workspace-fork\\arthas\\core\\target\\arthas-core-jar-with-dependencies.jar","-agent","D:\\workspace-fork\\arthas\\agent\\target\\arthas-agent-jar-with-dependencies.jar"};
+        	
             new Arthas(args);
         } catch (Throwable t) {
             AnsiLog.error("Start arthas failed, exception stack trace: ");
